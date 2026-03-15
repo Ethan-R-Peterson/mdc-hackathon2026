@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bookly
+
+A social reading competition web app where users log pages read, earn points, compete on leaderboards, and discover new books together. Built for college students who want to make reading social and competitive.
+
+## Features
+
+- **Book Search & Tracking** — Search Google Books, start reading, and track page progress
+- **Reading Logs** — Log pages read and earn points (1pt/page, finish bonuses, streak bonuses)
+- **Groups** — Create or join private groups with invite codes
+- **Leaderboards** — Global and per-group leaderboards with weekly/monthly/all-time periods
+- **Activity Feed** — See what your group members are reading in real time
+- **Reviews** — Rate and review finished books with spoiler protection
+- **User Profiles** — Public profiles with stats, badges, reading history, and reviews
+- **Recommendations** — Personalized book suggestions based on reading history, genres, and group activity
+- **Gamification** — 8 rank tiers (Bookworm to Library Legend), badges across reading/streak/social/points categories
+- **People Search** — Find and follow other readers
+
+## Tech Stack
+
+| Layer | Tech |
+|-------|------|
+| Frontend | Next.js 14 (App Router), TypeScript, TailwindCSS, TanStack Query |
+| Backend | Supabase (Auth + Postgres + Row Level Security) |
+| External | Google Books API |
+| Hosting | Vercel |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+
+- A Supabase project
+- Google Books API key
 
+### Setup
+
+1. Clone the repo and install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd bookly
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create `.env.local` with your credentials:
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY=your_google_books_api_key
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the database schema in your Supabase SQL Editor:
+   - `supabase-schema.sql` (base tables, RLS policies, triggers)
+   - `supabase-migration-reviews-profiles-badges.sql` (reviews, badges, profile fields)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start the dev server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+### Deploy to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push to GitHub
+2. Import repo in Vercel, set root directory to `bookly`
+3. Add the 3 environment variables
+4. Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Points System
 
-## Deploy on Vercel
+| Action | Points |
+|--------|--------|
+| Log pages | 1pt per page (100/day cap) |
+| Finish a book | +50 pts |
+| 3-day streak | +20 pts |
+| 7-day streak | +50 pts |
+| Submit a review | +10 pts |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+A streak day = any calendar day with 10+ pages logged.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Rank Tiers
+
+| Rank | Points Required |
+|------|----------------|
+| Bookworm | 0 |
+| Page Turner | 100 |
+| Chapter Chaser | 300 |
+| Story Seeker | 600 |
+| Novel Knight | 1,000 |
+| Lore Master | 2,000 |
+| Tome Titan | 3,500 |
+| Library Legend | 5,000 |
+
+## Project Structure
+
+```
+bookly/
+├── src/
+│   ├── app/                    # Next.js App Router pages & API routes
+│   │   ├── api/                # 12 API route handlers
+│   │   ├── dashboard/          # User dashboard with stats
+│   │   ├── groups/             # Group list, detail, leaderboard
+│   │   ├── books/              # Book search
+│   │   ├── my-books/           # User's reading list
+│   │   ├── log/                # Log pages form
+│   │   ├── leaderboard/        # Global leaderboard
+│   │   ├── profile/[userId]/   # User profiles
+│   │   ├── search/             # People search
+│   │   ├── recommendations/    # Book recommendations
+│   │   └── login/              # Auth page
+│   ├── components/             # Reusable UI components
+│   ├── hooks/                  # TanStack Query hooks
+│   ├── lib/                    # Business logic & Supabase clients
+│   │   ├── supabase/           # Client, server, middleware
+│   │   ├── google-books.ts     # Google Books API
+│   │   ├── points.ts           # Points & streak logic
+│   │   ├── gamification.ts     # Ranks & badges
+│   │   └── recommendations.ts  # Recommendation engine
+│   ├── types/                  # TypeScript interfaces
+│   └── providers/              # React context providers
+├── middleware.ts                # Auth redirect middleware
+└── .env.local                  # Environment variables
+```
+
+## Built With
+
+Built at MDC Hackathon 2026.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Bookly is a social reading competition app. Users log pages read from books, earn points, and compete on group leaderboards. Built with Next.js + Supabase.
+Bookly is a social reading competition app. Users log pages read from books, earn points, compete on leaderboards, review books, earn badges, and discover new reads through personalized recommendations. Built with Next.js + Supabase, targeting college students.
 
 ---
 
@@ -13,6 +13,7 @@ Bookly is a social reading competition app. Users log pages read from books, ear
 | Frontend | Next.js 14 (App Router), TypeScript, TailwindCSS, TanStack Query |
 | Backend | Supabase (Auth + Postgres + Row Level Security) |
 | External | Google Books API |
+| Hosting | Vercel |
 
 ---
 
@@ -23,86 +24,77 @@ bookly/
 ├── public/
 ├── src/
 │   ├── app/                        # Next.js App Router
-│   │   ├── layout.tsx              # Root layout (providers, nav)
-│   │   ├── page.tsx                # Landing / redirect to dashboard
-│   │   ├── login/
-│   │   │   └── page.tsx            # Auth page (sign in / sign up)
-│   │   ├── dashboard/
-│   │   │   └── page.tsx            # User dashboard (current books, stats)
+│   │   ├── layout.tsx              # Root layout (providers)
+│   │   ├── page.tsx                # Redirect to dashboard
+│   │   ├── login/page.tsx          # Auth page (sign in / sign up)
+│   │   ├── dashboard/page.tsx      # User dashboard (stats, rank, books, groups)
 │   │   ├── groups/
 │   │   │   ├── page.tsx            # List/join/create groups
 │   │   │   └── [groupId]/
-│   │   │       ├── page.tsx        # Group detail (feed + leaderboard)
+│   │   │       ├── page.tsx        # Group detail (members, feed, leaderboard)
 │   │   │       └── leaderboard/
-│   │   │           └── page.tsx    # Full leaderboard view
-│   │   ├── books/
-│   │   │   ├── page.tsx            # Book search (Google Books API)
-│   │   │   └── [bookId]/
-│   │   │       └── page.tsx        # Book detail + start reading
-│   │   ├── my-books/
-│   │   │   └── page.tsx            # User's reading list
-│   │   ├── log/
-│   │   │   └── page.tsx            # Log pages form
-│   │   ├── recommendations/
-│   │   │   └── page.tsx            # Book recommendations
+│   │   │           └── page.tsx    # Full group leaderboard with period toggle
+│   │   ├── books/page.tsx          # Book search (Google Books API)
+│   │   ├── my-books/page.tsx       # User's reading list + review buttons
+│   │   ├── log/page.tsx            # Log pages form + review prompt on finish
+│   │   ├── leaderboard/page.tsx    # Global leaderboard with podium + period toggle
+│   │   ├── profile/
+│   │   │   └── [userId]/page.tsx   # User profile (stats, badges, books, reviews)
+│   │   ├── search/page.tsx         # People search by username
+│   │   ├── recommendations/page.tsx # Personalized book recommendations
 │   │   └── api/
-│   │       ├── books/
-│   │       │   └── search/
-│   │       │       └── route.ts    # Proxy Google Books API
-│   │       ├── user-books/
-│   │       │   ├── route.ts        # Start/finish book
-│   │       │   └── [id]/
-│   │       │       └── route.ts    # Update user_book
-│   │       ├── reading-logs/
-│   │       │   └── route.ts        # POST log pages
+│   │       ├── books/search/route.ts       # Proxy Google Books API
+│   │       ├── user-books/route.ts         # List & start reading books
+│   │       ├── reading-logs/route.ts       # Log pages + points + streaks + badges
 │   │       ├── groups/
-│   │       │   ├── route.ts        # GET list, POST create
-│   │       │   ├── join/
-│   │       │   │   └── route.ts    # POST join group
+│   │       │   ├── route.ts                # List & create groups
+│   │       │   ├── join/route.ts           # Join group by invite code
 │   │       │   └── [groupId]/
-│   │       │       ├── feed/
-│   │       │       │   └── route.ts    # GET activity feed
-│   │       │       └── leaderboard/
-│   │       │           └── route.ts    # GET leaderboard
-│   │       ├── points/
-│   │       │   └── route.ts        # GET user points summary
-│   │       └── recommendations/
-│   │           └── route.ts        # GET recommendations
+│   │       │       ├── feed/route.ts       # Paginated activity feed
+│   │       │       ├── leaderboard/route.ts # Group leaderboard (with period)
+│   │       │       └── members/route.ts    # Members + currently reading
+│   │       ├── leaderboard/route.ts        # Global leaderboard
+│   │       ├── points/route.ts             # User points summary
+│   │       ├── reviews/route.ts            # Create/list reviews
+│   │       ├── recommendations/route.ts    # Book recommendations
+│   │       └── users/
+│   │           ├── search/route.ts         # Search users by username
+│   │           └── [userId]/route.ts       # Get/update user profile
 │   ├── components/
-│   │   ├── ui/                     # Reusable UI (Button, Card, Input, Modal)
-│   │   ├── BookCard.tsx
-│   │   ├── BookSearchResult.tsx
-│   │   ├── FeedItem.tsx
-│   │   ├── LeaderboardRow.tsx
-│   │   ├── LogPagesForm.tsx
-│   │   ├── GroupCard.tsx
-│   │   ├── Navbar.tsx
-│   │   ├── StreakBadge.tsx
-│   │   └── PointsBadge.tsx
+│   │   ├── Navbar.tsx              # Top nav with glass-morphism effect
+│   │   ├── Spinner.tsx             # Loading spinner
+│   │   ├── BookSearchResult.tsx    # Book search result card
+│   │   ├── FeedItem.tsx            # Activity feed item with colored borders
+│   │   ├── LeaderboardRow.tsx      # Ranked row with medals and rank titles
+│   │   ├── GroupCard.tsx           # Group preview card
+│   │   ├── ReviewCard.tsx          # Review display with spoiler toggle
+│   │   ├── ReviewForm.tsx          # Modal: star rating + review text
+│   │   └── StarRatingInput.tsx     # Clickable 5-star input
 │   ├── lib/
 │   │   ├── supabase/
 │   │   │   ├── client.ts           # Browser Supabase client
 │   │   │   ├── server.ts           # Server Supabase client
-│   │   │   └── middleware.ts       # Auth middleware
-│   │   ├── google-books.ts         # Google Books API helpers
-│   │   ├── points.ts               # Points calculation logic
-│   │   └── recommendations.ts      # Recommendation scoring logic
+│   │   │   └── middleware.ts       # Auth session refresh + redirect
+│   │   ├── google-books.ts         # Google Books API (search + related volumes)
+│   │   ├── points.ts               # Points calculation + streak tracking
+│   │   ├── gamification.ts         # Rank tiers + badge checking
+│   │   └── recommendations.ts      # Recommendation scoring engine
 │   ├── hooks/
-│   │   ├── useBooks.ts             # TanStack Query hooks for books
-│   │   ├── useGroups.ts            # TanStack Query hooks for groups
-│   │   ├── useReadingLogs.ts       # TanStack Query hooks for logs
-│   │   ├── useLeaderboard.ts
-│   │   ├── useFeed.ts
-│   │   └── useRecommendations.ts
-│   ├── types/
-│   │   └── index.ts                # All TypeScript types
-│   └── providers/
-│       └── QueryProvider.tsx        # TanStack Query provider
-├── middleware.ts                    # Next.js middleware (auth redirect)
-├── .env.local                      # Supabase keys, Google Books API key
+│   │   ├── useBooks.ts             # Book search, user books, start reading
+│   │   ├── useGroups.ts            # Groups CRUD
+│   │   ├── useReadingLogs.ts       # Log pages mutation
+│   │   ├── useLeaderboard.ts       # Group leaderboard (with period)
+│   │   ├── useGlobalLeaderboard.ts # Global leaderboard
+│   │   ├── useFeed.ts              # Infinite-scroll activity feed
+│   │   ├── useReviews.ts           # Book/user reviews, submit review
+│   │   ├── useProfile.ts           # User profile + update
+│   │   └── useRecommendations.ts   # Book recommendations
+│   ├── types/index.ts              # All TypeScript interfaces
+│   └── providers/QueryProvider.tsx  # TanStack Query provider
+├── middleware.ts                    # Next.js auth middleware
+├── .env.local                      # Environment variables
 ├── tailwind.config.ts
 ├── tsconfig.json
-├── next.config.js
 └── package.json
 ```
 
@@ -118,18 +110,22 @@ users 1──M user_books M──1 books
 users 1──M reading_logs M──1 user_books
 users 1──M points
 users 1──M feed_events M──1 groups
+users 1──M reviews M──1 books
+users 1──M user_badges M──1 badge_definitions
 ```
 
 ### Tables
 
 #### `users`
-Synced from Supabase Auth. Created via trigger on `auth.users` insert.
+Synced from Supabase Auth via trigger on `auth.users` insert.
 
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid (PK) | References `auth.users.id` |
 | username | text (unique) | Display name |
-| avatar_url | text | Profile picture |
+| avatar_url | text | Profile picture URL |
+| bio | text | Max 200 chars |
+| is_public | boolean | Default true |
 | current_streak | int | Current consecutive reading days |
 | longest_streak | int | All-time best streak |
 | last_read_date | date | Last day user logged 10+ pages |
@@ -169,6 +165,8 @@ Cached from Google Books API on first lookup.
 | page_count | int | |
 | genre | text | Primary genre/category |
 | description | text | |
+| rating | real | Google Books average rating |
+| ratings_count | int | Google Books rating count |
 | created_at | timestamptz | |
 
 #### `user_books`
@@ -201,8 +199,8 @@ Cached from Google Books API on first lookup.
 | id | uuid (PK) | |
 | user_id | uuid (FK users) | |
 | amount | int | Points earned |
-| reason | text | `pages`, `finish_book`, `streak_3`, `streak_7` |
-| reference_id | uuid | ID of reading_log or user_book |
+| reason | text | `pages`, `finish_bonus`, `streak_bonus`, `review` |
+| reference_id | uuid | ID of related entity |
 | created_at | timestamptz | |
 
 #### `feed_events`
@@ -212,50 +210,61 @@ Cached from Google Books API on first lookup.
 | id | uuid (PK) | |
 | user_id | uuid (FK users) | |
 | group_id | uuid (FK groups) | |
-| event_type | text | `started_book`, `logged_pages`, `finished_book`, `streak` |
-| metadata | jsonb | `{ bookTitle, pages, points, streakDays }` |
+| event_type | text | `started_book`, `logged_pages`, `finished_book`, `streak`, `reviewed_book`, `earned_badge` |
+| metadata | jsonb | Event-specific data |
 | created_at | timestamptz | |
+
+#### `reviews`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid (PK) | |
+| user_id | uuid (FK users) | |
+| book_id | uuid (FK books) | |
+| rating | int | 1-5 stars |
+| review_text | text | Max 500 chars, optional |
+| has_spoilers | boolean | Default false |
+| created_at | timestamptz | |
+| updated_at | timestamptz | |
+| **unique** | (user_id, book_id) | One review per user per book |
+
+#### `badge_definitions`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid (PK) | |
+| name | text (unique) | Badge display name |
+| description | text | How to earn it |
+| icon | text | Unicode codepoint (hex) |
+| category | text | `reading`, `streak`, `social`, `points` |
+| threshold | int | Value needed to earn |
+
+#### `user_badges`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid (PK) | |
+| user_id | uuid (FK users) | |
+| badge_id | uuid (FK badge_definitions) | |
+| earned_at | timestamptz | |
+| **unique** | (user_id, badge_id) | |
 
 ---
 
 ## API Routes
 
 ### Auth
-Handled entirely by Supabase Auth (email/password). No custom routes needed.
+Handled by Supabase Auth (email/password). Middleware redirects unauthenticated users to `/login`.
 
-### Books
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | `/api/books/search?q=` | Proxy to Google Books API, caches results in `books` table |
-
-### User Books
+### Books & Reading
 
 | Method | Route | Description |
 |--------|-------|-------------|
+| GET | `/api/books/search?q=` | Proxy to Google Books API (English, with page counts) |
 | GET | `/api/user-books` | List current user's books |
-| POST | `/api/user-books` | Start reading a book `{ bookId }` |
-| PATCH | `/api/user-books/[id]` | Finish a book `{ status: "finished" }` |
-
-### Reading Logs
-
-| Method | Route | Description |
-|--------|-------|-------------|
+| POST | `/api/user-books` | Start reading `{ googleBooksId }` — caches book, creates user_book |
 | POST | `/api/reading-logs` | Log pages `{ userBookId, pagesRead }` |
-
-**Validation rules (enforced server-side):**
-- `pagesRead` must be 1-100
-- 1-hour cooldown between logs (check last log timestamp)
-- Max 5 logs per day
-- Cannot exceed book's total page count
-
-**Side effects on successful log:**
-1. Update `user_books.current_page`
-2. Award page points (1 per page, max 100 page points/day)
-3. Check & update streak
-4. Award streak bonuses if milestone hit
-5. Create `feed_event` for each group the user belongs to
-6. If `current_page >= page_count`, auto-finish book + award finish bonus
+| GET | `/api/recommendations` | Personalized book recommendations |
 
 ### Groups
 
@@ -263,21 +272,27 @@ Handled entirely by Supabase Auth (email/password). No custom routes needed.
 |--------|-------|-------------|
 | GET | `/api/groups` | List user's groups |
 | POST | `/api/groups` | Create group `{ name, description }` |
-| POST | `/api/groups/join` | Join group `{ inviteCode }` |
-| GET | `/api/groups/[groupId]/feed` | Get activity feed (paginated) |
-| GET | `/api/groups/[groupId]/leaderboard` | Get leaderboard |
+| POST | `/api/groups/join` | Join group `{ inviteCode }` (uses RPC) |
+| GET | `/api/groups/[groupId]/feed` | Paginated activity feed |
+| GET | `/api/groups/[groupId]/leaderboard?period=` | Group leaderboard (weekly/monthly/all) |
+| GET | `/api/groups/[groupId]/members` | Members with currently reading books |
+
+### Social
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/leaderboard?period=` | Global leaderboard |
+| GET | `/api/reviews?bookId=` or `?userId=` | List reviews |
+| POST | `/api/reviews` | Create/update review `{ bookId, rating, reviewText, hasSpoilers }` |
+| GET | `/api/users/search?q=` | Search users by username |
+| GET | `/api/users/[userId]` | Get user profile with stats, books, badges |
+| PATCH | `/api/users/[userId]` | Update own profile `{ bio, is_public, username }` |
 
 ### Points
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | `/api/points` | Get current user's points summary |
-
-### Recommendations
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | `/api/recommendations` | Get book recommendations for user |
+| GET | `/api/points` | Current user's points summary |
 
 ---
 
@@ -285,54 +300,26 @@ Handled entirely by Supabase Auth (email/password). No custom routes needed.
 
 ### Points System
 
-```
-Page points:     1 point per page logged (max 100 page-points per calendar day)
-Finish bonus:    +50 points when book status changes to "finished"
-Streak (3 days): +20 points
-Streak (7 days): +50 points
+| Action | Points |
+|--------|--------|
+| Log pages | 1pt/page (max 100 page-points per calendar day) |
+| Finish book | +50 pts |
+| 3-day streak | +20 pts |
+| 7-day streak | +50 pts |
+| Submit review | +10 pts (first review per book only) |
 
-Streak day = calendar day where user logged >= 10 pages total
-```
+### Rank Tiers
 
-Points are calculated and inserted server-side in the `POST /api/reading-logs` handler. The leaderboard query simply sums `points.amount` per user per group.
-
-### Leaderboard Query
-
-```sql
-SELECT u.id, u.username, u.avatar_url, SUM(p.amount) as total_points
-FROM points p
-JOIN users u ON u.id = p.user_id
-WHERE p.user_id IN (
-  SELECT user_id FROM group_members WHERE group_id = $1
-)
-GROUP BY u.id, u.username, u.avatar_url
-ORDER BY total_points DESC;
-```
-
-### Activity Feed
-
-Simply query `feed_events` for the group, ordered by `created_at DESC`, with pagination (limit/offset). Join with `users` for display name and avatar.
-
-### Recommendation Scoring
-
-When a user requests recommendations:
-
-1. Get user's genres from their `user_books` → `books.genre`
-2. Get books popular in user's groups (books read by group members)
-3. Score candidate books:
-
-```
-score =
-    3 * genre_match       (1 if genre matches user's read genres, else 0)
-  + 2 * similar_length    (1 if page_count within 20% of user's avg, else 0)
-  + 3 * group_popularity  (count of group members reading/finished this book, normalized 0-1)
-  + 1 * global_popularity (count of all users reading/finished this book, normalized 0-1)
-```
-
-4. Exclude books the user has already started/finished
-5. Return top 10 by score
-
-This runs as a single SQL query with scoring in the application layer.
+| Rank | Min Points |
+|------|-----------|
+| Bookworm | 0 |
+| Page Turner | 100 |
+| Chapter Chaser | 300 |
+| Story Seeker | 600 |
+| Novel Knight | 1,000 |
+| Lore Master | 2,000 |
+| Tome Titan | 3,500 |
+| Library Legend | 5,000 |
 
 ### Streak Calculation
 
@@ -343,92 +330,70 @@ On each log submission:
    - Else: reset `current_streak = 1`
    - Update `last_read_date = today`
    - Update `longest_streak` if current > longest
-3. Check if `current_streak` just hit 3 or 7 → award bonus
+3. Check if `current_streak` just hit 3 or 7 → award bonus + feed event
+
+### Badge System
+
+Badges are checked automatically after logging pages and submitting reviews. The system:
+1. Fetches all badge definitions and user's existing badges
+2. Calculates current stats (books read, streak, reviews, points, groups)
+3. Awards any newly qualified badges
+4. Creates feed events for earned badges
+
+### Recommendation Engine
+
+Scoring factors (recency-weighted):
+- `genre_match` (5x) — matches user's recently read genres
+- `related_volume` (3x) — Google Books related/associated volumes
+- `author_match` (2x) — same authors user has read
+- `rating` (2x) — Google Books average rating
+- `group_popularity` (2x) — books popular in user's groups
+- `similar_length` (1x) — page count within 20% of user's average
+- `ratings_count` (1x) — number of ratings on Google Books
+- `global_popularity` (1x) — read count across all Bookly users
+
+Recency weighting: books read in last 7 days get 1.0x, 30 days 0.7x, 90 days 0.4x, older 0.2x.
+
+Uses fuzzy title matching (`normalizeTitle`, `isSimilarTitle`) to avoid recommending books the user has already read.
+
+### Reading Log Side Effects
+
+On successful `POST /api/reading-logs`:
+1. Update `user_books.current_page`
+2. Award page points (1/page, 100/day cap)
+3. Check & update streak
+4. Award streak bonuses if milestone hit
+5. Auto-finish book if pages reach total → award finish bonus
+6. Create feed events for all user's groups
+7. Check and award any new badges
 
 ---
 
 ## Auth Flow
 
 1. User signs up/in via Supabase Auth (email + password)
-2. Trigger creates row in `users` table
-3. Middleware checks auth on all routes except `/login`
+2. Database trigger creates row in `users` table
+3. Middleware checks auth on all routes except `/login` and `/auth/callback`
 4. Supabase client uses the session token for RLS
 
 ---
 
-## Row Level Security (RLS) Summary
+## Row Level Security (RLS)
 
 | Table | SELECT | INSERT | UPDATE | DELETE |
 |-------|--------|--------|--------|--------|
-| users | All can read | Trigger only | Own row | Never |
-| groups | Members only | Authenticated | Creator only | Never |
-| group_members | Members of group | Authenticated | Never | Own membership |
-| books | All can read | Authenticated | Never | Never |
+| users | All authenticated | Trigger only | Own row | Never |
+| groups | Members or creator | Authenticated | Creator only | Never |
+| group_members | Via `is_group_member()` | Authenticated | Never | Own membership |
+| books | All authenticated | Authenticated | Never | Never |
 | user_books | Own rows | Own rows | Own rows | Own rows |
 | reading_logs | Own rows | Own rows | Never | Never |
 | points | Own rows | Server only | Never | Never |
 | feed_events | Group members | Server only | Never | Never |
+| reviews | All authenticated | Authenticated | Own rows | Never |
+| badge_definitions | All authenticated | Never | Never | Never |
+| user_badges | All authenticated | Server only | Never | Never |
 
----
-
-## Environment Variables
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://sbgpancblydrgrpjedkp.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_BDx9SKYTAyzWB3MCOXCCew_tpKN9p_4
-GOOGLE_BOOKS_API_KEY=AIzaSyBAItrp_q2PJx65dP25EqLL5P61LL-dvNg
-```
-
----
-
-## Implementation Phases
-
-### Phase 1: Project Setup & Auth
-- Initialize Next.js project with TypeScript + TailwindCSS
-- Install dependencies (TanStack Query, Supabase client libs)
-- Set up Supabase clients (browser + server)
-- Set up auth middleware
-- Build login/signup page
-- Set up TanStack Query provider
-- Create basic layout with Navbar
-- Create types file
-
-### Phase 2: Groups
-- Build create group page/form
-- Build join group page (invite code)
-- Build groups list page
-- Build group detail page (shell for feed + leaderboard)
-- API routes: create, join, list groups
-
-### Phase 3: Book Search & Start Reading
-- Set up Google Books API proxy route
-- Build book search page with results
-- Build book detail page
-- Implement "Start Reading" flow (cache book in DB + create user_book)
-- Build "My Books" page showing current reads
-
-### Phase 4: Reading Logs & Points
-- Build log pages form (select book, enter pages)
-- Implement server-side validation (100 page max, 1hr cooldown, 5/day limit)
-- Implement points calculation (page points with daily cap)
-- Implement streak tracking and streak bonuses
-- Implement auto-finish book when pages reach total
-- Award finish bonus points
-
-### Phase 5: Feed & Leaderboard
-- Create feed events on each action (log, start, finish, streak milestone)
-- Build feed UI component for group page
-- Build leaderboard query and UI
-- Add pagination to feed
-
-### Phase 6: Recommendations & Dashboard
-- Build recommendation scoring logic
-- Build recommendations page
-- Build user dashboard (current books, stats, streak display, points)
-
-### Phase 7: Polish & Final Touches
-- Loading states and error handling
-- Empty states for all pages
-- Mobile responsiveness pass
-- UI polish (animations, transitions)
-- Final testing
+Security definer functions:
+- `is_group_member(group_id, user_id)` — bypasses RLS recursion on group_members
+- `find_group_by_invite_code(code)` — allows non-members to discover groups by invite code
