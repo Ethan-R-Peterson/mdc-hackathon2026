@@ -4,7 +4,7 @@ Demo video: [https://youtu.be/UqlzuftaV04](url)
 Try it out:  [bookly-2026.vercel.app](url)
 
 ## Purpose
-**Bookly** is a reading tracker designed to help combat declining literacy by making reading more engaging and social. The app allows users to log the pages they read, maintain daily reading streaks, join groups with friends, and compete on leaderboards while receiving personalized book recommendations.
+**Bookly** is a reading tracker designed to help combat declining literacy by making reading more engaging and social. The app allows users to log the pages they read, maintain daily reading streaks, join groups with friends, and compete on leaderboards while receiving personalized book recommendations. This product was developed for a spring hackathon, sponsored by CampusAI.
 
 ## Features
 
