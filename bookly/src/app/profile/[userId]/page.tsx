@@ -18,6 +18,7 @@ export default function ProfilePage() {
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [isPublic, setIsPublic] = useState(true);
 
@@ -29,6 +30,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (data?.profile) {
+      setUsername(data.profile.username ?? "");
       setBio(data.profile.bio ?? "");
       setIsPublic(data.profile.is_public);
     }
@@ -59,7 +61,7 @@ export default function ProfilePage() {
   const { profile, stats, recentBooks, badges } = data;
 
   async function handleSave() {
-    await updateProfile.mutateAsync({ userId, bio, is_public: isPublic });
+    await updateProfile.mutateAsync({ userId, username, bio, is_public: isPublic });
     setEditing(false);
   }
 
@@ -95,6 +97,14 @@ export default function ProfilePage() {
               </>
             ) : (
               <div className="mt-2 space-y-2">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  maxLength={30}
+                  placeholder="Username"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                />
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}

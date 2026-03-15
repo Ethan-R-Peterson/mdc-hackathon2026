@@ -57,24 +57,45 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Review text must be 500 characters or less" }, { status: 400 });
   }
 
-  // Verify user finished this book
-  const { data: userBook } = await supabase
+  // Verify user finished this book (bookId can be internal UUID or google_books_id)
+  let { data: userBook } = await supabase
     .from("user_books")
-    .select("id, status, book:books(title)")
+    .select("id, status, book_id, book:books(id, title, google_books_id)")
     .eq("user_id", user.id)
     .eq("book_id", bookId)
     .single();
 
+  // If not found by internal ID, try google_books_id
+  if (!userBook) {
+    const { data: book } = await supabase
+      .from("books")
+      .select("id")
+      .eq("google_books_id", bookId)
+      .single();
+    if (book) {
+      const { data: ub } = await supabase
+        .from("user_books")
+        .select("id, status, book_id, book:books(id, title, google_books_id)")
+        .eq("user_id", user.id)
+        .eq("book_id", book.id)
+        .single();
+      userBook = ub;
+    }
+  }
+
   if (!userBook || userBook.status !== "finished") {
     return NextResponse.json({ error: "You must finish the book before reviewing" }, { status: 400 });
   }
+
+  // Use the actual internal book_id
+  const actualBookId = userBook.book_id;
 
   // Check if review already exists
   const { data: existing } = await supabase
     .from("reviews")
     .select("id")
     .eq("user_id", user.id)
-    .eq("book_id", bookId)
+    .eq("book_id", actualBookId)
     .single();
 
   let review;
@@ -98,7 +119,7 @@ export async function POST(request: Request) {
       .from("reviews")
       .insert({
         user_id: user.id,
-        book_id: bookId,
+        book_id: actualBookId,
         rating,
         review_text: reviewText?.trim() || null,
         has_spoilers: hasSpoilers ?? false,
