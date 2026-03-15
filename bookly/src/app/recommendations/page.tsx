@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import BookSearchResult from "@/components/BookSearchResult";
+import Spinner from "@/components/Spinner";
 import { useRecommendations } from "@/hooks/useRecommendations";
 
 export default function RecommendationsPage() {
@@ -19,7 +20,7 @@ export default function RecommendationsPage() {
           reading.
         </p>
 
-        {isLoading && <p className="text-gray-500">Finding books for you...</p>}
+        {isLoading && <Spinner className="py-12" />}
 
         {recommendations && recommendations.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

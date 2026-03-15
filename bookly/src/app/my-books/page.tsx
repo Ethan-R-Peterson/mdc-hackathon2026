@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Spinner from "@/components/Spinner";
 import { useUserBooks } from "@/hooks/useBooks";
 import Link from "next/link";
 
@@ -24,7 +25,7 @@ export default function MyBooksPage() {
           </Link>
         </div>
 
-        {isLoading && <p className="text-gray-500">Loading...</p>}
+        {isLoading && <Spinner className="py-12" />}
 
         {/* Currently Reading */}
         <h2 className="text-lg font-semibold text-gray-900 mb-4">

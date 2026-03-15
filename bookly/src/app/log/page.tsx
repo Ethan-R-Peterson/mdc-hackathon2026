@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import Spinner from "@/components/Spinner";
 import { useUserBooks } from "@/hooks/useBooks";
 import { useLogPages } from "@/hooks/useReadingLogs";
 
@@ -64,7 +65,7 @@ export default function LogPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Log Pages</h1>
 
         {isLoading ? (
-          <p className="text-gray-500">Loading your books...</p>
+          <Spinner className="py-12" />
         ) : readingBooks.length === 0 ? (
           <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-8 text-center">
             <p className="text-gray-500">

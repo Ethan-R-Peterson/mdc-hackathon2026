@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FeedItem from "@/components/FeedItem";
 import LeaderboardRow from "@/components/LeaderboardRow";
+import Spinner from "@/components/Spinner";
 import { useFeed } from "@/hooks/useFeed";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useQuery } from "@tanstack/react-query";
@@ -69,7 +70,7 @@ export default function GroupDetailPage() {
                 </Link>
               </div>
               {lbLoading ? (
-                <p className="text-sm text-gray-500">Loading...</p>
+                <Spinner className="py-4" />
               ) : leaderboard && leaderboard.length > 0 ? (
                 leaderboard
                   .slice(0, 5)
@@ -95,7 +96,7 @@ export default function GroupDetailPage() {
                 Activity Feed
               </h2>
               {feedLoading ? (
-                <p className="text-sm text-gray-500">Loading...</p>
+                <Spinner className="py-4" />
               ) : feedEvents.length > 0 ? (
                 <>
                   {feedEvents.map((event) => (

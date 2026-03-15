@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import BookSearchResult from "@/components/BookSearchResult";
+import Spinner from "@/components/Spinner";
 import { useBookSearch } from "@/hooks/useBooks";
 
 export default function BooksPage() {
@@ -37,7 +38,7 @@ export default function BooksPage() {
           </button>
         </form>
 
-        {isLoading && <p className="text-gray-500">Searching...</p>}
+        {isLoading && <Spinner className="py-12" />}
 
         {results && results.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

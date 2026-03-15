@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import GroupCard from "@/components/GroupCard";
+import Spinner from "@/components/Spinner";
 import { useGroups, useCreateGroup, useJoinGroup } from "@/hooks/useGroups";
 
 export default function GroupsPage() {
@@ -138,7 +139,7 @@ export default function GroupsPage() {
 
         {/* Groups List */}
         {isLoading ? (
-          <p className="text-gray-500">Loading groups...</p>
+          <Spinner className="py-12" />
         ) : groups && groups.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {groups.map((group) => (

@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import LeaderboardRow from "@/components/LeaderboardRow";
+import Spinner from "@/components/Spinner";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useQuery } from "@tanstack/react-query";
 import type { Group } from "@/types";
@@ -65,7 +66,7 @@ export default function LeaderboardPage() {
         {/* Full leaderboard */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           {isLoading ? (
-            <p className="text-sm text-gray-500">Loading...</p>
+            <Spinner className="py-8" />
           ) : leaderboard && leaderboard.length > 0 ? (
             leaderboard.map((entry, i) => (
               <LeaderboardRow key={entry.id} entry={entry} rank={i + 1} />
